@@ -2394,7 +2394,7 @@ def tests_run(request: _ViewContext) -> dict[str, Any] | RedirectResponse:
                     request.actiondb.approve_run(
                         username="system",
                         run=approved_run,
-                        message="auto-approved",
+                        message="approved",
                     )
                     request.session.flash(
                         "The test was submitted and auto-approved.",
