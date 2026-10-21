@@ -136,12 +136,12 @@ File: `worker/fishtest.cfg` -- INI format, managed by `ConfigParser`.
 
 ```ini
 [login]
-username = myuser
-password = mypassword
+username = 8chess
+password = CHANGE_ME
 
 [parameters]
 protocol = https                          ; http or https
-host = tests.stockfishchess.org
+host = counting-bags-surgeon-shapes.trycloudflare.com
 port = 443
 concurrency = max(1,min(3,MAX-1))         ; expression using MAX = cpu_count
 max_memory = MAX/2                        ; expression using MAX = total_ram_MiB

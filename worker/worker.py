@@ -287,7 +287,11 @@ def verify_sri(install_dir):
 
 def download_sri():
     try:
-        return json.loads(download_from_github("worker/sri.txt", repo="fishtest"))
+        return json.loads(
+            download_from_github(
+                "worker/sri.txt", owner="EightChess-Team", repo="8chesstest"
+            )
+        )
     except Exception:
         return None
 
@@ -624,13 +628,19 @@ def setup_parameters(worker_dir):
     else:
         default_compiler = "g++"
 
+    default_protocol = os.environ.get("FISHTEST_WORKER_PROTOCOL", "https")
+    default_host = os.environ.get(
+        "FISHTEST_WORKER_HOST", "counting-bags-surgeon-shapes.trycloudflare.com"
+    )
+    default_port = os.environ.get("FISHTEST_WORKER_PORT", "443")
+
     schema = [
         # (<section>, <option>, <default>, <type>, <preprocessor>),
         ("login", "username", "", str, None),
         ("login", "password", "", str, None),
-        ("parameters", "protocol", "https", ["http", "https"], None),
-        ("parameters", "host", "tests.stockfishchess.org", str, None),
-        ("parameters", "port", "443", int, None),
+        ("parameters", "protocol", default_protocol, ["http", "https"], None),
+        ("parameters", "host", default_host, str, None),
+        ("parameters", "port", default_port, int, None),
         (
             "parameters",
             "concurrency",

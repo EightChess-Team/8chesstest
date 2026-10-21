@@ -1,7 +1,7 @@
 [project]
-name = "fishtest-worker"
+name = "8chesstest-worker"
 version = "0.1.0"
-description = "fishtest-worker"
+description = "8Chess fishtest worker"
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -19,9 +19,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://tests.stockfishchess.org"
-Repository = "https://github.com/official-stockfish/fishtest"
-Issues = "https://github.com/official-stockfish/fishtest"
+Homepage = "https://github.com/EightChess-Team/8chesstest"
+Repository = "https://github.com/EightChess-Team/8chesstest"
+Issues = "https://github.com/EightChess-Team/8chesstest/issues"
 
 [build-system]
 requires = ["hatchling>=1.27.0"]

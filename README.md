@@ -1,20 +1,34 @@
-### Overview
-[![CI server](https://github.com/official-stockfish/fishtest/actions/workflows/server.yaml/badge.svg)](https://github.com/official-stockfish/fishtest/actions/workflows/server.yaml) [![CI worker posix](https://github.com/official-stockfish/fishtest/actions/workflows/worker_posix.yaml/badge.svg)](https://github.com/official-stockfish/fishtest/actions/workflows/worker_posix.yaml) [![CI worker msys2](https://github.com/official-stockfish/fishtest/actions/workflows/worker_msys2.yaml/badge.svg)](https://github.com/official-stockfish/fishtest/actions/workflows/worker_msys2.yaml) [![CI lint](https://github.com/official-stockfish/fishtest/actions/workflows/lint.yaml/badge.svg)](https://github.com/official-stockfish/fishtest/actions/workflows/lint.yaml)
+# 8Chess Test
 
-Fishtest is a distributed task queue for testing chess engines. The main instance
-for testing the chess engine [Stockfish](https://github.com/official-stockfish/Stockfish) is at this web page https://tests.stockfishchess.org
+[![CI server](https://github.com/EightChess-Team/8chesstest/actions/workflows/server.yaml/badge.svg)](https://github.com/EightChess-Team/8chesstest/actions/workflows/server.yaml) [![CI worker posix](https://github.com/EightChess-Team/8chesstest/actions/workflows/worker_posix.yaml/badge.svg)](https://github.com/EightChess-Team/8chesstest/actions/workflows/worker_posix.yaml) [![CI worker msys2](https://github.com/EightChess-Team/8chesstest/actions/workflows/worker_msys2.yaml/badge.svg)](https://github.com/EightChess-Team/8chesstest/actions/workflows/worker_msys2.yaml) [![CI lint](https://github.com/EightChess-Team/8chesstest/actions/workflows/lint.yaml/badge.svg)](https://github.com/EightChess-Team/8chesstest/actions/workflows/lint.yaml)
 
-Developers submit patches with new ideas and improvements, CPU contributors install a fishtest worker on their computers to play some chess games in the background to help the developers testing the patches.
+A fork of [Fishtest](https://github.com/official-stockfish/fishtest) for
+distributed testing of [8Chess](https://github.com/EightChess-Team/8chess).
 
-The fishtest worker:
-- Automatically connects to the server to download a chess opening book, the [fastchess](https://github.com/Disservin/fastchess) chess game manager sources and the chess engine sources (both for the current Stockfish and for the patch with the new idea). The sources will be compiled according to the type of the worker platform.
-- Starts a batch of games using fastchess.
-- Uploads the games results on the server.
+## Deployment
 
-The fishtest server:
-- Manages the queue of the tests with customizable priorities.
-- Computes several probabilistic values from the game results sent by the workers.
-- Updates and publishes the results of ongoing tests.
-- Knows how to stop tests when they are statistically significant and publishes the final tests results.
+- Public server: <https://counting-bags-surgeon-shapes.trycloudflare.com>
+- Central host: `162.35.161.218`
+- The public URL is a free anonymous Cloudflare quick tunnel. If the tunnel
+  restarts, read the current URL from `/var/log/fishtest-tunnel.log` on the
+  server.
+- Admin account: `8chess` (password provided separately).
 
-To get more information, such as the worker/server install and configuration instructions, visit the [Fishtest Wiki](https://github.com/official-stockfish/fishtest/wiki).
+The worker defaults to the 8Chess server above. Override it with
+`worker/fishtest.cfg` or the environment variables `FISHTEST_WORKER_HOST`,
+`FISHTEST_WORKER_PORT`, and `FISHTEST_WORKER_PROTOCOL`.
+
+## Workers
+
+See [`docs/6-worker.md`](docs/6-worker.md) and
+[`worker/fishtest.cfg.example`](worker/fishtest.cfg.example).
+
+The upstream worker builds Stockfish sources with `make`. Adapting the
+worker's engine-build pipeline to the Rust 8Chess build is the next step;
+the server, books, and worker connectivity are already in place.
+
+## Upstream
+
+This project is derived from
+<https://github.com/official-stockfish/fishtest>. See the upstream
+documentation and license for details.

@@ -1,0 +1,15 @@
+[login]
+username = 8chess
+password = CHANGE_ME
+
+[parameters]
+protocol = https
+host = counting-bags-surgeon-shapes.trycloudflare.com
+port = 443
+concurrency = max(1,min(3,MAX-1))
+max_memory = MAX/2
+uuid_prefix = _hw
+min_threads = 1
+fleet = False
+global_cache =
+compiler = g++
