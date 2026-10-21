@@ -114,7 +114,7 @@ class RunDb:
         self.ltc_lower_bound = 40  # Beware: this is used as a filter in an index!
         self.pt_info = {
             "pt_version": "8Chess 1.0",
-            "pt_branch": "932a124e35e2e866a71c3221b3302495856b3f8d",
+            "pt_branch": "c51c1db1728f98c363429057133d2fbafec4b3e9",
             "pt_bench": 2270651,
         }
 
