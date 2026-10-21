@@ -350,18 +350,14 @@ def required_nets(engine):
     pattern = re.compile(r"(EvalFile\w*)\s+.*\s+(nn-[a-f0-9]{12}.nnue)")
     print(f"Obtaining EvalFile of {engine.name}...")
     try:
-        with subprocess.Popen(
+        p = subprocess.run(
             [engine, "uci"],
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
-            universal_newlines=True,
-            bufsize=1,
-            close_fds=not IS_WINDOWS,
-        ) as p:
-            for line in iter(p.stdout.readline, ""):
-                match = pattern.search(line)
-                if match:
-                    nets[match.group(1)] = match.group(2)
-
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=10,
+        )
     except (OSError, subprocess.SubprocessError) as e:
         raise WorkerException(f"Unable to obtain name for required net. Error: {e}")
 
@@ -369,6 +365,11 @@ def required_nets(engine):
         raise WorkerException(
             f"UCI exited with non-zero code {format_returncode(p.returncode)}."
         )
+
+    for line in p.stdout.splitlines():
+        match = pattern.search(line)
+        if match:
+            nets[match.group(1)] = match.group(2)
 
     return nets
 
@@ -469,13 +470,13 @@ def run_single_bench(engine, hash_size, threads, depth, timeout=600):
                 "depth",
             ],
             stderr=subprocess.PIPE,
-            stdout=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
             universal_newlines=True,
             bufsize=1,
             close_fds=not IS_WINDOWS,
         ) as p:
             try:
-                _, stderr_data = p.communicate(timeout=timeout)
+                stdout_data, stderr_data = p.communicate(timeout=timeout)
             except subprocess.TimeoutExpired as e:
                 p.kill()
                 message = f"Bench of {engine.name} timed out after {timeout} seconds."
@@ -483,11 +484,17 @@ def run_single_bench(engine, hash_size, threads, depth, timeout=600):
             if p.returncode != 0:
                 message = f"Bench run failed with exit code {format_returncode(p.returncode)}."
                 raise WorkerException(message)
-            for line in stderr_data.splitlines():
+            for line in (stdout_data + "\n" + stderr_data).splitlines():
                 if "Total time (ms)" in line:
                     bench_time = float(line.split(": ")[1].strip())
                 if "Nodes searched" in line:
                     bench_nodes = float(line.split(": ")[1].strip())
+                match = re.match(r"Bench:\s+(\d+)\s+nodes\s+(\d+)\s+nps", line)
+                if match:
+                    bench_nodes = float(match.group(1))
+                    bench_nps = float(match.group(2))
+                    if bench_nps > 0:
+                        bench_time = 1000.0 * bench_nodes / bench_nps
     except (OSError, subprocess.SubprocessError) as e:
         message = f"Bench of {engine.name} failed to execute. Error: {e}"
         raise WorkerException(message, e=e) from e
@@ -570,20 +577,20 @@ def verify_signature(engine, signature):
 
 def get_cpu_features(engine):
     cpu_features = "?"
-    with subprocess.Popen(
-        [engine, "compiler"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        universal_newlines=True,
-        bufsize=1,
-        close_fds=not IS_WINDOWS,
-    ) as p:
-        for line in iter(p.stdout.readline, ""):
-            if "settings" in line:
-                cpu_features = line.split(": ")[1].strip()
-    if p.returncode != 0:
-        message = f"Compiler info exited with non-zero code {format_returncode(p.returncode)}."
-        raise WorkerException(message)
+    try:
+        p = subprocess.run(
+            [engine, "compiler"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return cpu_features
+    for line in p.stdout.splitlines():
+        if "settings" in line:
+            cpu_features = line.split(": ")[1].strip()
     return cpu_features
 
 
@@ -824,7 +831,7 @@ def create_environment():
     return env, env_hash
 
 
-def engine_is_healthy(path: Path, timeout_s: float = 5.0):
+def engine_is_healthy(path: Path, timeout_s: float = 30.0):
     try:
         r = subprocess.run(
             [str(path), "bench", "16", "1", "5", "default", "depth"],
@@ -888,36 +895,41 @@ def setup_engine(
         if blob_needs_write:
             cache_write(global_cache, sha + ".zip", blob)
 
-        build_dir = (
-            tmp_dir / os.path.commonprefix([n.filename for n in file_list]) / "src"
-        )
+        repo_dir = tmp_dir / os.path.commonprefix([n.filename for n in file_list])
+        is_cargo = (repo_dir / "Cargo.toml").is_file()
+        build_dir = repo_dir if is_cargo else repo_dir / "src"
         os.chdir(build_dir)
 
-        for net in required_nets_from_source():
-            print(f"Build uses default net: {net}")
-            establish_validated_net(remote, testing_dir, net, global_cache)
-            shutil.copyfile(testing_dir / net, net)
+        if not is_cargo:
+            for net in required_nets_from_source():
+                print(f"Build uses default net: {net}")
+                establish_validated_net(remote, testing_dir, net, global_cache)
+                shutil.copyfile(testing_dir / net, net)
 
-        arch = find_arch(compiler)
-
-        if arch == "native":
+        if is_cargo:
             engine_path = engine_path_native
+            cmd = ["cargo", "build", "--release"]
+        else:
+            arch = find_arch(compiler)
 
-        if compiler == "g++":
-            comp = "mingw" if IS_WINDOWS else "gcc"
-        elif compiler == "clang++":
-            comp = "clang"
+            if arch == "native":
+                engine_path = engine_path_native
 
-        # skip temporarily the profiled build for apple silicon, see
-        # https://stackoverflow.com/questions/71580631/how-can-i-get-code-coverage-with-clang-13-0-1-on-mac
-        make_cmd = "build" if arch == "apple-silicon" else "profile-build"
-        cmd = [
-            "make",
-            f"-j{concurrency}",
-            f"{make_cmd}",
-            f"ARCH={arch}",
-            f"COMP={comp}",
-        ]
+            if compiler == "g++":
+                comp = "mingw" if IS_WINDOWS else "gcc"
+            elif compiler == "clang++":
+                comp = "clang"
+
+            # skip temporarily the profiled build for apple silicon, see
+            # https://stackoverflow.com/questions/71580631/how-can-i-get-code-coverage-with-clang-13-0-1-on-mac
+            make_cmd = "build" if arch == "apple-silicon" else "profile-build"
+            cmd = [
+                "make",
+                f"-j{concurrency}",
+                f"{make_cmd}",
+                f"ARCH={arch}",
+                f"COMP={comp}",
+            ]
 
         with subprocess.Popen(
             cmd,
@@ -940,27 +952,33 @@ def setup_engine(
         if p.returncode != 0:
             raise WorkerException(f"Executing {cmd} failed. Error: {errors}")
 
-        cmd = ["make", "strip", f"COMP={comp}"]
-        try:
-            p = subprocess.run(
-                cmd,
-                stderr=subprocess.PIPE,
-                check=False,
-            )
-        except (OSError, subprocess.SubprocessError) as e:
-            raise FatalException(
-                f"Executing {' '.join(cmd)} raised Exception: {type(e).__name__}: {e}",
-                e=e,
-            )
-        if p.returncode != 0:
-            raise FatalException(
-                f"Executing {' '.join(cmd)} failed. Error: {p.stderr.decode().strip()}",
-            )
+        if not is_cargo:
+            cmd = ["make", "strip", f"COMP={comp}"]
+            try:
+                p = subprocess.run(
+                    cmd,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                )
+            except (OSError, subprocess.SubprocessError) as e:
+                raise FatalException(
+                    f"Executing {' '.join(cmd)} raised Exception: {type(e).__name__}: {e}",
+                    e=e,
+                )
+            if p.returncode != 0:
+                raise FatalException(
+                    f"Executing {' '.join(cmd)} failed. Error: {p.stderr.decode().strip()}",
+                )
 
         # We called setup_engine() because the engine was not cached.
         # Only another worker running in the same folder can have built the engine.
         if engine_path.exists():
             raise FatalException("Another worker is running in the same directory!")
+        if is_cargo:
+            binary = build_dir / "target" / "release" / ("eightchess" + EXE_SUFFIX)
+            if not binary.is_file():
+                raise FatalException(f"Cargo build did not produce {binary}.")
+            binary.replace(engine_path)
         else:
             (build_dir / "stockfish").with_suffix(EXE_SUFFIX).replace(engine_path)
     finally:

@@ -23,9 +23,9 @@ The worker defaults to the 8Chess server above. Override it with
 See [`docs/6-worker.md`](docs/6-worker.md) and
 [`worker/fishtest.cfg.example`](worker/fishtest.cfg.example).
 
-The upstream worker builds Stockfish sources with `make`. Adapting the
-worker's engine-build pipeline to the Rust 8Chess build is the next step;
-the server, books, and worker connectivity are already in place.
+The worker builds Stockfish sources with `make` and 8Chess sources with
+`cargo build --release`. The 8Chess engine uses its embedded network by
+default; a custom `EvalFile` is only needed when the test supplies one.
 
 ## Upstream
 
