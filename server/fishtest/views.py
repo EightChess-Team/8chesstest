@@ -57,6 +57,7 @@ from fishtest.http.open_graph import (
 )
 from fishtest.http.settings import (
     ACTIONS_PAGE_SIZE,
+    AUTO_APPROVE_RUNS,
     AUTO_APPROVE_USERS,
     CONTRIBUTORS_MAX_ALL,
     CONTRIBUTORS_PAGE_SIZE,
@@ -2387,9 +2388,25 @@ def tests_run(request: _ViewContext) -> dict[str, Any] | RedirectResponse:
                 run=run,
                 message=new_run_message(request, run),
             )
-            request.session.flash(
-                "The test was submitted to the queue. Please wait for approval.",
-            )
+            if AUTO_APPROVE_RUNS:
+                approved_run, _ = request.rundb.approve_run(run_id, "system")
+                if approved_run is not None:
+                    request.actiondb.approve_run(
+                        username="system",
+                        run=approved_run,
+                        message="auto-approved",
+                    )
+                    request.session.flash(
+                        "The test was submitted and auto-approved.",
+                    )
+                else:
+                    request.session.flash(
+                        "The test was submitted to the queue. Please wait for approval.",
+                    )
+            else:
+                request.session.flash(
+                    "The test was submitted to the queue. Please wait for approval.",
+                )
             return RedirectResponse(
                 url="/tests/view/" + str(run_id) + "?follow=1",
                 status_code=302,

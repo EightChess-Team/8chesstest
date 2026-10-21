@@ -75,6 +75,7 @@ The following subset is relevant during development:
 | `FISHTEST_PRIMARY_PORT` | `-1` | Defaults to primary when unset |
 | `FISHTEST_JINJA_TEMPLATES_DIR` | auto | Override Jinja2 templates directory |
 | `FISHTEST_AUTO_APPROVE_USERS` | `1` | Set to `0` to require manual approval of new accounts |
+| `FISHTEST_AUTO_APPROVE_RUNS` | `1` | Set to `0` to require manual approval of new tests |
 
 When `FISHTEST_PORT` and `FISHTEST_PRIMARY_PORT` are both unset or negative,
 the instance defaults to primary -- the expected mode for single-instance

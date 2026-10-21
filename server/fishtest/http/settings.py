@@ -88,6 +88,7 @@ def env_bool(name: str, *, default: bool) -> bool:
 
 
 AUTO_APPROVE_USERS: bool = env_bool("FISHTEST_AUTO_APPROVE_USERS", default=True)
+AUTO_APPROVE_RUNS: bool = env_bool("FISHTEST_AUTO_APPROVE_RUNS", default=True)
 
 
 def default_static_dir() -> Path:

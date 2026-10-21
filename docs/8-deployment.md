@@ -19,6 +19,7 @@
 | `FISHTEST_NN_URL` | No | (unset => request host; empty => same-host) | Base URL workers use to download neural networks (see below) |
 | `FISHTEST_AUTHENTICATION_SECRET` | Yes | -- | Cookie signing secret (itsdangerous) |
 | `FISHTEST_AUTO_APPROVE_USERS` | No | `1` | Set to `0` to require manual approval of new accounts |
+| `FISHTEST_AUTO_APPROVE_RUNS` | No | `1` | Set to `0` to require manual approval of new tests |
 | `FISHTEST_INSECURE_DEV` | No | -- | Set to `1` for development mode (insecure secret) |
 | `FISHTEST_JINJA_TEMPLATES_DIR` | No | auto | Override Jinja2 templates directory |
 | `OPENAPI_URL` | No | (empty) | Set to `/openapi.json` to enable `/docs` and `/redoc` (development-only) |
@@ -123,8 +124,9 @@ Environment="FISHTEST_NN_URL=OPTIONAL_NN_URL"
 # Cookie-session signing secret (required in production).
 # Development-only insecure fallback requires explicit opt-in: Environment="FISHTEST_INSECURE_DEV=1"
 Environment="FISHTEST_AUTHENTICATION_SECRET=CHANGE_ME"
-# Set to 0 to require manual approval of new accounts (default: 1).
+# Set to 0 to require manual approval of new accounts/tests (defaults: 1).
 Environment="FISHTEST_AUTO_APPROVE_USERS=1"
+Environment="FISHTEST_AUTO_APPROVE_RUNS=1"
 
 # Port of *this* instance
 Environment="FISHTEST_PORT=%i"
