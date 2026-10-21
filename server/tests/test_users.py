@@ -1,6 +1,7 @@
 # ruff: noqa: ANN201, ANN206, B904, D100, D101, D102, E501, EM102, INP001, PLC0415, PT009, S105, TRY003
 """Test auth, session, and shared user-facing smoke routes."""
 
+from unittest import mock
 from urllib.parse import urlencode
 
 import test_support
@@ -108,25 +109,59 @@ class TestUsers(UiUserTestCase):
         self.assertIn("location", {k.lower() for k in response.headers})
 
     def test_signup_creates_user_and_redirects(self):
-        response = self.client.get("/signup")
-        self.assertEqual(response.status_code, 200)
-        self._assert_no_store_headers(response)
-        csrf = test_support.extract_csrf_token(response.text)
-        response = self.client.post(
-            "/signup",
-            data={
-                "username": self.signup_username,
-                "password": self.signup_password,
-                "password2": self.signup_password,
-                "email": "signup-test@user.net",
-                "tests_repo": self.tests_repo,
-                "csrf_token": csrf,
-            },
-            follow_redirects=False,
-        )
+        with mock.patch("fishtest.views.AUTO_APPROVE_USERS", True):
+            response = self.client.get("/signup")
+            self.assertEqual(response.status_code, 200)
+            self._assert_no_store_headers(response)
+            self.assertIn("Instant Access", response.text)
+            csrf = test_support.extract_csrf_token(response.text)
+            response = self.client.post(
+                "/signup",
+                data={
+                    "username": self.signup_username,
+                    "password": self.signup_password,
+                    "password2": self.signup_password,
+                    "email": "signup-test@user.net",
+                    "tests_repo": self.tests_repo,
+                    "csrf_token": csrf,
+                },
+                follow_redirects=False,
+            )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.headers.get("location", "").endswith("/login"))
         self._assert_no_store_headers(response)
+        created_user = self.rundb.userdb.get_user(self.signup_username)
+        self.assertIsNotNone(created_user)
+        self.assertFalse(created_user["pending"])
+
+    def test_signup_can_require_manual_approval(self):
+        signup_username = "TestManualSignupUser"
+        self.addCleanup(
+            self.rundb.userdb.users.delete_many,
+            {"username": signup_username},
+        )
+        self.addCleanup(self.rundb.userdb.clear_cache)
+        with mock.patch("fishtest.views.AUTO_APPROVE_USERS", False):
+            response = self.client.get("/signup")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("Manual Approvals", response.text)
+            csrf = test_support.extract_csrf_token(response.text)
+            response = self.client.post(
+                "/signup",
+                data={
+                    "username": signup_username,
+                    "password": self.signup_password,
+                    "password2": self.signup_password,
+                    "email": "manual-signup-test@user.net",
+                    "tests_repo": self.tests_repo,
+                    "csrf_token": csrf,
+                },
+                follow_redirects=False,
+            )
+        self.assertEqual(response.status_code, 302)
+        created_user = self.rundb.userdb.get_user(signup_username)
+        self.assertIsNotNone(created_user)
+        self.assertTrue(created_user["pending"])
 
     def test_signup_canonicalizes_tests_repo(self):
         signup_username = "TestCanonicalSignupUser"

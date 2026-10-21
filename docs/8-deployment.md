@@ -18,8 +18,7 @@
 | `FISHTEST_URL` | Dev: No; Prod: Yes | -- | Public URL (e.g., `https://tests.stockfishchess.org`); may be empty in development for dynamic host/IP |
 | `FISHTEST_NN_URL` | No | (unset => request host; empty => same-host) | Base URL workers use to download neural networks (see below) |
 | `FISHTEST_AUTHENTICATION_SECRET` | Yes | -- | Cookie signing secret (itsdangerous) |
-| `FISHTEST_CAPTCHA_SECRET` | No | -- | reCAPTCHA secret key for signup |
-| `FISHTEST_CAPTCHA_SITE_KEY` | No | built-in | reCAPTCHA site key for signup |
+| `FISHTEST_AUTO_APPROVE_USERS` | No | `1` | Set to `0` to require manual approval of new accounts |
 | `FISHTEST_INSECURE_DEV` | No | -- | Set to `1` for development mode (insecure secret) |
 | `FISHTEST_JINJA_TEMPLATES_DIR` | No | auto | Override Jinja2 templates directory |
 | `OPENAPI_URL` | No | (empty) | Set to `/openapi.json` to enable `/docs` and `/redoc` (development-only) |
@@ -89,7 +88,7 @@ File: `/etc/systemd/system/fishtest@.service`
 Copy the following file as-is. Replace `USER_NAME` with the actual user,
 `SERVER_NAME` with the actual domain, `OPTIONAL_NN_URL` with one of
 the values below, and `CHANGE_ME` with the production cookie signing
-secret and the reCAPTCHA secret.
+secret.
 
 `OPTIONAL_NN_URL` -- base URL workers use to download neural networks:
 
@@ -124,7 +123,8 @@ Environment="FISHTEST_NN_URL=OPTIONAL_NN_URL"
 # Cookie-session signing secret (required in production).
 # Development-only insecure fallback requires explicit opt-in: Environment="FISHTEST_INSECURE_DEV=1"
 Environment="FISHTEST_AUTHENTICATION_SECRET=CHANGE_ME"
-Environment="FISHTEST_CAPTCHA_SECRET=CHANGE_ME"
+# Set to 0 to require manual approval of new accounts (default: 1).
+Environment="FISHTEST_AUTO_APPROVE_USERS=1"
 
 # Port of *this* instance
 Environment="FISHTEST_PORT=%i"

@@ -7,9 +7,15 @@
   <header class="text-md-center py-2">
     <h2>Register</h2>
     <div class="alert alert-info">
-      <h4 class="alert-heading">Manual Approvals</h4>
-      <p class="mb-0">To avoid spam, a person will manually approve your account.</p>
-      <p class="mb-0">This is usually quick but <strong>sometimes takes a few hours</strong>.</p>
+      {% if auto_approve_users %}
+        <h4 class="alert-heading">Instant Access</h4>
+        <p class="mb-0">Your account is approved automatically.</p>
+        <p class="mb-0">Log in and start testing immediately.</p>
+      {% else %}
+        <h4 class="alert-heading">Manual Approvals</h4>
+        <p class="mb-0">To avoid spam, a person will manually approve your account.</p>
+        <p class="mb-0">This is usually quick but <strong>sometimes takes a few hours</strong>.</p>
+      {% endif %}
       <hr />
       <p class="mb-0">Already have an account? <strong><a href="/login" class="alert-link">Log in</a></strong></p>
     </div>

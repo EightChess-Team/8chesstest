@@ -59,7 +59,6 @@ FINISHED_FILTER_MAX_COUNT_AUTH: int = 10000
 FINISHED_FILTER_MAX_COUNT_ANON: int = 1000
 
 # Request/form limits for legacy sync UI handlers.
-UI_HTTP_TIMEOUT_SECONDS: float = 15.0
 UI_FORM_MAX_FILES: int = 2
 UI_FORM_MAX_FIELDS: int = 200
 UI_FORM_MAX_PART_SIZE_BYTES: int = 200 * 1024 * 1024
@@ -74,6 +73,21 @@ def env_int(name: str, *, default: int) -> int:
         return int(value)
     except ValueError:
         return default
+
+
+def env_bool(name: str, *, default: bool) -> bool:
+    """Parse an environment variable as a boolean, with a fallback default."""
+    value = os.environ.get(name, "").strip().lower()
+    if not value:
+        return default
+    if value in {"1", "true", "yes", "on"}:
+        return True
+    if value in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
+AUTO_APPROVE_USERS: bool = env_bool("FISHTEST_AUTO_APPROVE_USERS", default=True)
 
 
 def default_static_dir() -> Path:

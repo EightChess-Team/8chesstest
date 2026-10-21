@@ -117,7 +117,7 @@ class UserDb:
         self.users.replace_one({"_id": user["_id"]}, user)
         self.clear_cache()
 
-    def create_user(self, username, password, email, tests_repo):
+    def create_user(self, username, password, email, tests_repo, pending=True):
         try:
             if self.find_by_username(username) or self.find_by_email(email):
                 return False
@@ -126,7 +126,7 @@ class UserDb:
                 "username": username,
                 "password": password,
                 "registration_time": datetime.now(UTC),
-                "pending": True,
+                "pending": pending,
                 "blocked": False,
                 "email": email,
                 "groups": [],

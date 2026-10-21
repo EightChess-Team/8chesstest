@@ -531,7 +531,7 @@ Shared base context only.
 
 | Key | Type |
 |-----|------|
-| `recaptcha_site_key` | string |
+| `auto_approve_users` | bool |
 
 ### `sprt_calc.html.j2`
 

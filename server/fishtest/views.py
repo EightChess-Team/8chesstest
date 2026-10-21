@@ -57,6 +57,7 @@ from fishtest.http.open_graph import (
 )
 from fishtest.http.settings import (
     ACTIONS_PAGE_SIZE,
+    AUTO_APPROVE_USERS,
     CONTRIBUTORS_MAX_ALL,
     CONTRIBUTORS_PAGE_SIZE,
     NNS_MAX_ALL,
@@ -708,6 +709,7 @@ def signup(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa:
     _append_no_store_headers(request)
     signup_context = {
         "VALID_USERNAME_PATTERN": VALID_USERNAME_PATTERN,
+        "auto_approve_users": AUTO_APPROVE_USERS,
     }
 
     if request.authenticated_userid:
@@ -754,6 +756,7 @@ def signup(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa:
         password=signup_password,
         email=validated_email,
         tests_repo=tests_repo,
+        pending=not AUTO_APPROVE_USERS,
     )
 
     if result is None:
@@ -761,12 +764,17 @@ def signup(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa:
     elif not result:
         request.session.flash("Username or email is already registered", "error")
     else:
-        request.session.flash(
-            "Account created! "
-            "To avoid spam, a person will now manually approve your new account. "
-            "This is usually quick but sometimes takes a few hours. "
-            "Thank you for contributing!",
-        )
+        if AUTO_APPROVE_USERS:
+            request.session.flash(
+                "Account created! You can now log in and start testing.",
+            )
+        else:
+            request.session.flash(
+                "Account created! "
+                "To avoid spam, a person will now manually approve your new account. "
+                "This is usually quick but sometimes takes a few hours. "
+                "Thank you for contributing!",
+            )
         return RedirectResponse(url="/login", status_code=302)
     return signup_context
 
