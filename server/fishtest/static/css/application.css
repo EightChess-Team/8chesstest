@@ -3,11 +3,13 @@
     "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial,
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
     "Noto Color Emoji";
-  --bs-link-color-rgb: 0, 128, 2;
+  --bs-link-color-rgb: 194, 65, 12;
   --bs-link-color: rgb(var(--bs-link-color-rgb));
-  --bs-link-hover-color-rgb: 95, 153, 96;
+  --bs-link-hover-color-rgb: 154, 52, 18;
   --bs-link-hover-color: rgb(var(--bs-link-hover-color-rgb));
-  --bs-link-focus-color: rgb(73, 116, 73);
+  --bs-link-focus-color: rgb(124, 45, 18);
+  --brand-orange: #f97316;
+  --brand-orange-rgb: 249, 115, 22;
   --bs-secondary-color: #6c757d;
   --sidebar-width: 180px;
   --scroll-bar-width: 16px;
@@ -475,23 +477,24 @@ legend {
   content: "\f1ec";
 }
 
-.mainnavbar [href="https://github.com/official-stockfish/fishtest"]::before {
+.mainnavbar .testing-repo::before {
   content: "\f441";
 }
 
-.mainnavbar
-  [href="https://github.com/official-stockfish/nnue-pytorch"]::before {
-  content: "\f3e2";
-  font-family: "Font Awesome 7 Brands";
-  font-weight: 400;
-}
-
-.mainnavbar [href="https://github.com/official-stockfish/books"]::before {
+.mainnavbar .books-repo::before {
   content: "\f02d";
 }
 
-.mainnavbar .stockfish-repo::before {
+.mainnavbar .engine-repo::before {
   content: "\f578";
+}
+
+.mainnavbar .docs-link::before {
+  content: "\f15c";
+}
+
+.mainnavbar .training-link::before {
+  content: "\f5dc";
 }
 
 .mainnavbar .wiki::before {
@@ -510,12 +513,6 @@ legend {
 
 .mainnavbar .get-involved::before {
   content: "\f4c4";
-}
-
-.mainnavbar .discord::before {
-  content: "\f392";
-  font-family: "Font Awesome 7 Brands";
-  font-weight: 400;
 }
 
 .mainnavbar [href="/signup"]::before {
@@ -595,20 +592,33 @@ legend {
 /* Header */
 header.navbar {
   background-color: var(--bs-light);
+  border-bottom: 3px solid var(--brand-orange);
   z-index: 1030;
 }
 
 .brand-logo {
-  background-image: url(../img/stockfish.webp);
+  background-image: url(../img/8chess.svg);
   background-position: center;
-  background-size: cover;
+  background-repeat: no-repeat;
+  background-size: contain;
   height: 40px;
   width: 40px;
 }
 
+.btn-primary {
+  --bs-btn-bg: #c2410c;
+  --bs-btn-border-color: #c2410c;
+  --bs-btn-hover-bg: #9a3412;
+  --bs-btn-hover-border-color: #9a3412;
+  --bs-btn-active-bg: #7c2d12;
+  --bs-btn-active-border-color: #7c2d12;
+  --bs-btn-disabled-bg: #c2410c;
+  --bs-btn-disabled-border-color: #c2410c;
+}
+
 /* Links in the left navigation */
 .links-heading {
-  color: #2e2e2e;
+  color: #9a3412;
   font-size: 14px;
   font-weight: bold;
   text-transform: uppercase;

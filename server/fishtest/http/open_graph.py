@@ -6,14 +6,15 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, SupportsFloat, TypedDict
 from urllib.parse import urlsplit, urlunsplit
 
+from fishtest import branding
 from fishtest.http.template_helpers import nelo_pentanomial_summary_text
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-_SITE_NAME = "Stockfish Testing Framework"
-_DEFAULT_DESCRIPTION = "Distributed testing framework for the Stockfish chess engine."
-_TITLE_SUFFIX = " | Stockfish Testing"
+_SITE_NAME = branding.SITE_NAME
+_DEFAULT_DESCRIPTION = branding.SITE_DESCRIPTION
+_TITLE_SUFFIX = branding.TITLE_SUFFIX
 _YELLOW_THEME_COLOR = "#FFFF00"
 
 _TimestampInput = SupportsFloat | str | None

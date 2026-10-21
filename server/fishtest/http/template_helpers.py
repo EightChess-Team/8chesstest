@@ -12,6 +12,7 @@ from urllib.parse import quote_plus
 
 from markupsafe import Markup
 
+from fishtest import branding
 from fishtest.stats import LLRcalc, stat_util
 from fishtest.stats import sprt as sprt_module
 from fishtest.util import (
@@ -1051,7 +1052,7 @@ def tests_run_setup(
     test_book: str,
 ) -> dict:
     """Assemble template-ready test setup values."""
-    base_branch = args.get("base_tag", "master")
+    base_branch = args.get("base_tag", branding.ENGINE_BRANCH)
     master_bench = master_info.get("bench") if isinstance(master_info, dict) else None
     latest_bench = args.get("base_signature", master_bench)
 

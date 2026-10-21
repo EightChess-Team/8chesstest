@@ -236,7 +236,7 @@ class TestTestsViewDetail(unittest.TestCase):
                 response.text,
                 property_name="og:title",
             ),
-            "400 games - master vs master | Stockfish Testing",
+            "400 games - master vs master | 8Chess Testing",
         )
         self.assertEqual(
             test_support.extract_meta_content(

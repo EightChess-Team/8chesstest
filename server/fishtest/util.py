@@ -12,6 +12,7 @@ from zxcvbn import zxcvbn
 
 import fishtest.github_api as gh
 import fishtest.stats.stat_util
+from fishtest import branding
 
 FISHTEST = "fishtest_new"
 PASSWORD_MAX_LENGTH = 72
@@ -582,7 +583,7 @@ def tests_repo(run):
     else:
         # very old tests didn't have a separate
         # tests repo
-        return "https://github.com/official-stockfish/Stockfish"
+        return branding.ENGINE_REPO_URL
 
 
 def diff_url(run, master_check=True):
@@ -590,7 +591,7 @@ def diff_url(run, master_check=True):
     user2, repo = gh.parse_repo(tests_repo_)
     sha2 = run["args"]["resolved_new"]
     if "spsa" in run["args"]:
-        user1 = "official-stockfish"
+        user1 = branding.ENGINE_USER
         sha1 = gh.official_master_sha
     else:
         user1 = user2
@@ -606,9 +607,9 @@ def diff_url(run, master_check=True):
             )
         else:
             if im1:
-                user1 = "official-stockfish"
+                user1 = branding.ENGINE_USER
             if im2:
-                user2 = "official-stockfish"
+                user2 = branding.ENGINE_USER
     return gh.compare_branches_url(user1=user1, branch1=sha1, user2=user2, branch2=sha2)
 
 

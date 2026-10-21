@@ -1,10 +1,6 @@
 {% extends "base.html.j2" %}
 
-{% block title %}Register | Stockfish Testing{% endblock %}
-
-{% block head %}
-  <script src='https://www.google.com/recaptcha/api.js'></script>
-{% endblock %}
+{% block title %}Register | 8Chess Testing{% endblock %}
 
 {% block body %}
 <div class="col-limited-size">
@@ -91,7 +87,7 @@
           class="form-control"
           id="tests_repo"
           name="tests_repo"
-          placeholder="GitHub Stockfish fork URL"
+          placeholder="GitHub 8Chess fork URL"
         >
         <label for="tests_repo" class="d-flex align-items-end">Tests Repository</label>
       </div>
@@ -110,8 +106,6 @@
         </div>
       </div>
     </div>
-
-    <div class="g-recaptcha mb-3" data-sitekey="{{ recaptcha_site_key if recaptcha_site_key is defined else '' }}"></div>
 
     <button type="submit" class="btn btn-primary w-100">Register</button>
   </form>

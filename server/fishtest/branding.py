@@ -1,0 +1,23 @@
+SITE_NAME = "8Chess Testing Framework"
+SITE_SHORT_NAME = "8Chess Testing"
+SITE_DESCRIPTION = "Distributed testing framework for the 8Chess chess engine."
+TITLE_SUFFIX = " | 8Chess Testing"
+
+ENGINE_NAME = "8Chess"
+ENGINE_USER = "EightChess-Team"
+ENGINE_REPO = "8chess"
+ENGINE_BRANCH = "8chess"
+ENGINE_REPO_URL = f"https://github.com/{ENGINE_USER}/{ENGINE_REPO}"
+ENGINE_RELEASES_URL = f"{ENGINE_REPO_URL}/releases"
+ENGINE_COMMITS_URL = f"{ENGINE_REPO_URL}/commits/{ENGINE_BRANCH}"
+ENGINE_ISSUES_URL = f"{ENGINE_REPO_URL}/issues"
+ENGINE_DOCS_URL = f"{ENGINE_REPO_URL}/tree/{ENGINE_BRANCH}/docs"
+ENGINE_TRAINING_URL = f"{ENGINE_REPO_URL}/tree/{ENGINE_BRANCH}/training"
+
+TESTING_REPO = "8chesstest"
+TESTING_REPO_URL = f"https://github.com/{ENGINE_USER}/{TESTING_REPO}"
+TESTING_GUIDE_URL = f"{TESTING_REPO_URL}#readme"
+
+BOOKS_REPO = "books"
+BOOKS_BRANCH = "main"
+BOOKS_REPO_URL = f"https://github.com/{ENGINE_USER}/{BOOKS_REPO}"

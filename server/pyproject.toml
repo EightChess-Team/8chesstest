@@ -43,10 +43,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://tests.stockfishchess.org"
-Documentation = "https://github.com/official-stockfish/fishtest/wiki"
-Repository = "https://github.com/official-stockfish/fishtest"
-Issues = "https://github.com/official-stockfish/fishtest"
+Homepage = "https://github.com/EightChess-Team/8chesstest"
+Documentation = "https://github.com/EightChess-Team/8chess/tree/8chess/docs"
+Repository = "https://github.com/EightChess-Team/8chesstest"
+Issues = "https://github.com/EightChess-Team/8chesstest/issues"
 
 [build-system]
 requires = ["hatchling>=1.32.4"]

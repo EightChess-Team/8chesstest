@@ -12,7 +12,6 @@ import copy
 import gzip
 import hashlib
 import logging
-import os
 import re
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime, timedelta
@@ -22,7 +21,6 @@ from urllib.parse import quote, urlencode
 
 import bson
 import regex
-import requests
 from fastapi import APIRouter
 from markupsafe import Markup
 from starlette.concurrency import run_in_threadpool
@@ -33,6 +31,7 @@ from vtjson import ValidationError, union, validate
 
 import fishtest.github_api as gh
 import fishtest.stats.stat_util
+from fishtest import branding
 from fishtest.http.boundary import (
     build_template_context,
     commit_session_response,
@@ -68,7 +67,6 @@ from fishtest.http.settings import (
     UI_FORM_MAX_FIELDS,
     UI_FORM_MAX_FILES,
     UI_FORM_MAX_PART_SIZE_BYTES,
-    UI_HTTP_TIMEOUT_SECONDS,
     UI_STATE_COOKIE_MAX_AGE_SECONDS,
     USER_MANAGEMENT_MAX_ALL,
     USER_MANAGEMENT_PAGE_SIZE,
@@ -178,11 +176,9 @@ from fishtest.views_run import (
     validate_modify,
 )
 
-HTTP_TIMEOUT = UI_HTTP_TIMEOUT_SECONDS
 FORM_MAX_FILES = UI_FORM_MAX_FILES
 FORM_MAX_FIELDS = UI_FORM_MAX_FIELDS
 FORM_MAX_PART_SIZE = UI_FORM_MAX_PART_SIZE_BYTES
-DEFAULT_RECAPTCHA_SITE_KEY = "6LePs8YUAAAAABMmqHZVyVjxat95Z1c_uHrkugZM"
 
 router = APIRouter(tags=["ui"])
 logger = logging.getLogger(__name__)
@@ -689,7 +685,7 @@ def login(request: _ViewContext) -> dict[str, Any] | RedirectResponse:
         # `error_code` is a stable contract from `UserDb.authenticate()`.
         if token.get("error_code") == "pending":
             message += (
-                " If you recently registered to fishtest, "
+                " If you recently registered to 8Chess Testing, "
                 "a person will now manually approve your new account, to avoid spam. "
                 "This is usually quick, but sometimes takes a few hours. "
                 "Thank you!"
@@ -710,12 +706,7 @@ def logout(request: _ViewContext) -> RedirectResponse:
 
 def signup(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa: C901, PLR0911, PLR0912, PLR0915
     _append_no_store_headers(request)
-    recaptcha_site_key = os.environ.get(
-        "FISHTEST_CAPTCHA_SITE_KEY",
-        DEFAULT_RECAPTCHA_SITE_KEY,
-    ).strip()
     signup_context = {
-        "recaptcha_site_key": recaptcha_site_key,
         "VALID_USERNAME_PATTERN": VALID_USERNAME_PATTERN,
     }
 
@@ -758,41 +749,6 @@ def signup(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa:
             request.session.flash(error, "error")
         return signup_context
 
-    secret = os.environ.get("FISHTEST_CAPTCHA_SECRET", "").strip()
-    captcha_response = _form_string_value(
-        request.POST,
-        "g-recaptcha-response",
-    ).strip()
-
-    if not secret:
-        request.session.flash("Captcha configuration is missing", "error")
-        return signup_context
-
-    if not captcha_response:
-        request.session.flash("Captcha required", "error")
-        return signup_context
-
-    payload = {
-        "secret": secret,
-        "response": captcha_response,
-        "remoteip": request.remote_addr,
-    }
-    try:
-        response = requests.post(
-            "https://www.google.com/recaptcha/api/siteverify",
-            data=payload,
-            timeout=HTTP_TIMEOUT,
-        ).json()
-    except requests.RequestException, ValueError:
-        request.session.flash("Captcha verification failed", "error")
-        return signup_context
-
-    if "success" not in response or not response["success"]:
-        if "error-codes" in response:
-            logger.warning(response["error-codes"])
-        request.session.flash("Captcha failed", "error")
-        return signup_context
-
     result = request.userdb.create_user(
         username=signup_username,
         password=signup_password,
@@ -833,7 +789,7 @@ def worker_email(
 Dear {owner_name},
 
 Thank you for contributing to the development of \
-Stockfish. Unfortunately, it seems your Fishtest \
+{branding.ENGINE_NAME}. Unfortunately, it seems your 8Chess Testing \
 worker {worker_name} has some issue(s). More \
 specifically the following has been reported:
 
@@ -843,13 +799,12 @@ You may possibly find more information about this \
 in our event log at {host_url}/actions
 
 Feel free to reply to this email if you require \
-any help, or else contact the #fishtest-dev \
-channel on the Stockfish Discord server: \
-https://discord.com/invite/awnh2qZfTT
+any help, or else open an issue at \
+{branding.TESTING_REPO_URL}/issues
 
 Enjoy your day,
 
-{blocker_name} (Fishtest approver)
+{blocker_name} (8Chess Testing approver)
 
 """
     return body  # noqa: RET504
@@ -1206,7 +1161,7 @@ def upload(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # noqa:
         return result
     base_context = {
         "upload_url": str(request.url),
-        "testing_guidelines_url": "https://github.com/official-stockfish/fishtest/wiki/Creating-my-first-test",
+        "testing_guidelines_url": branding.TESTING_GUIDE_URL,
         "cc0_url": "https://creativecommons.org/share-your-work/public-domain/cc0/",
         "nn_stats_url": "/nns",
     }
@@ -2134,7 +2089,7 @@ def _build_run_tables_context(  # noqa: PLR0913
     toggle_states = _build_toggle_states(request, toggle_names)
     finished_title_text = (
         f"{username + ' - ' if username else ''}Finished Tests"
-        f" - page {page_idx + 1} | Stockfish Testing"
+        f" - page {page_idx + 1}{branding.TITLE_SUFFIX}"
     )
 
     return {
@@ -2185,10 +2140,12 @@ def tests_finished(request: _ViewContext) -> dict[str, Any] | Response:
     title_suffix = context["title_suffix"]
     search_mode = context["search_mode"]
     if search_mode:
-        title_text = f"Search Finished Tests - page {page_idx + 1} | Stockfish Testing"
+        title_text = (
+            f"Search Finished Tests - page {page_idx + 1}{branding.TITLE_SUFFIX}"
+        )
     else:
         title_text = (
-            f"Finished Tests{title_suffix} - page {page_idx + 1} | Stockfish Testing"
+            f"Finished Tests{title_suffix} - page {page_idx + 1}{branding.TITLE_SUFFIX}"
         )
     context_out = {
         **context,
@@ -3588,7 +3545,8 @@ def tests_view(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # n
         warnings.append(f"this test uses a small book with only {book_exits} exits")
     if "master_repo" in run["args"]:  # if present then it is non-standard
         warnings.append(
-            "the developer repository is not forked from official-stockfish/Stockfish",
+            f"the developer repository is not forked from "
+            f"{branding.ENGINE_USER}/{branding.ENGINE_REPO}",
         )
 
     def allow_github_api_calls() -> bool:
@@ -3610,7 +3568,7 @@ def tests_view(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # n
         logger.warning("Unable to normalize_repo: %s", e)
 
     anchor_url = gh.compare_branches_url(
-        user1="official-stockfish",
+        user1=branding.ENGINE_USER,
         branch1=gh.official_master_sha,
         user2=user,
         branch2=run["args"]["resolved_base"],
@@ -3647,6 +3605,7 @@ def tests_view(request: _ViewContext) -> dict[str, Any] | RedirectResponse:  # n
                     warnings.append("base is not an ancestor of new")
                 else:
                     merge_base_commit = gh.get_merge_base_commit(
+                        user1=branding.ENGINE_USER,
                         sha1=gh.official_master_sha,
                         user2=user,
                         sha2=run["args"]["resolved_new"],

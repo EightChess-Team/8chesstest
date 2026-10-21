@@ -348,7 +348,7 @@ class TestsRepoHelperTests(unittest.TestCase):
 
         self.assertEqual(
             tests_repo(run),
-            "https://github.com/official-stockfish/Stockfish",
+            "https://github.com/EightChess-Team/8chess",
         )
 
 

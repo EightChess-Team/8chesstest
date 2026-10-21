@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 import requests
 from vtjson import validate
 
+from fishtest import branding
 from fishtest.lru_cache import LRUCache, lru_cache
 from fishtest.schemas import sha as sha_schema
 
@@ -37,6 +38,7 @@ way.
 """
 GITHUB_API_VERSION = 2
 TIMEOUT = 3
+OFFICIAL_REPO = f"{branding.ENGINE_USER}/{branding.ENGINE_REPO}"
 INITIAL_RATELIMIT = 5000
 LRU_CACHE_SIZE = 6000
 
@@ -311,9 +313,14 @@ def compare_sha(
     if user2 is None:
         user2 = user1
 
+    comparison_repo = (
+        "official-stockfish/Stockfish"
+        if "official-stockfish" in (user1, user2)
+        else OFFICIAL_REPO
+    )
     url = (
-        "https://api.github.com/repos/official-stockfish/"
-        f"Stockfish/compare/{user1}:{sha1}...{user2}:{sha2}"
+        f"https://api.github.com/repos/{comparison_repo}/compare/"
+        f"{user1}:{sha1}...{user2}:{sha2}"
     )
     r = call(
         url,
@@ -387,7 +394,10 @@ def is_ancestor(
 def _is_master(sha, ignore_rate_limit=False):
     try:
         merge_base_commit = get_merge_base_commit(
-            sha1=sha, sha2=official_master_sha, ignore_rate_limit=ignore_rate_limit
+            user1=branding.ENGINE_USER,
+            sha1=sha,
+            sha2=official_master_sha,
+            ignore_rate_limit=ignore_rate_limit,
         )
     except requests.HTTPError as e:
         if e.response.status_code == 404:
@@ -429,6 +439,21 @@ def get_master_repo(
             r = r["parent"]
 
 
+def repo_has_ancestor(user, repo, ancestor_url, ignore_rate_limit=False):
+    api_url = f"https://api.github.com/repos/{user}/{repo}"
+    r = call(api_url, timeout=TIMEOUT, _ignore_rate_limit=ignore_rate_limit)
+    r.raise_for_status()
+    r = r.json()
+    target = ancestor_url.rstrip("/")
+    while isinstance(r, dict):
+        if str(r.get("html_url", "")).rstrip("/") == target:
+            return True
+        if not r.get("fork"):
+            return False
+        r = r.get("parent")
+    return False
+
+
 @lru_cache(
     maxsize=128,
     expiration=600,
@@ -449,14 +474,11 @@ def normalize_repo(repo):
 
 
 def compare_branches_url(
-    user1="stockfish-chess", branch1="master", user2=None, branch2=None
+    user1=branding.ENGINE_USER, branch1=branding.ENGINE_BRANCH, user2=None, branch2=None
 ):
     if user2 is None:
         user2 = user1
-    return (
-        "https://github.com/official-stockfish/Stockfish/"
-        f"compare/{user1}:{branch1}...{user2}:{branch2}"
-    )
+    return f"{branding.ENGINE_REPO_URL}/compare/{user1}:{branch1}...{user2}:{branch2}"
 
 
 def commit_url(user="official-stockfish", repo="Stockfish", branch="master"):
@@ -466,11 +488,16 @@ def commit_url(user="official-stockfish", repo="Stockfish", branch="master"):
 def update_official_master_sha():
     global official_master_sha
     try:
-        response = get_commit(ignore_rate_limit=True)
+        response = get_commit(
+            user=branding.ENGINE_USER,
+            repo=branding.ENGINE_REPO,
+            branch=branding.ENGINE_BRANCH,
+            ignore_rate_limit=True,
+        )
         official_master_sha = response["sha"]
     except Exception as e:
         print(
-            f"Unable to obtain the official stockfish master sha: {str(e)}",
+            f"Unable to obtain the official 8Chess master sha: {str(e)}",
             flush=True,
         )
     if official_master_sha != _dummy_sha:

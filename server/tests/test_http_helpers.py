@@ -207,7 +207,7 @@ class TestsRunSetupRobustnessTests(unittest.TestCase):
         setup = tests_run_setup(
             args={}, master_info=None, pt_info=pt_info, test_book="b.epd"
         )
-        self.assertEqual(setup["base_branch"], "master")
+        self.assertEqual(setup["base_branch"], "8chess")
         self.assertIsNone(setup["latest_bench"])
 
     def test_does_not_crash_when_master_info_bench_none(self):
@@ -218,7 +218,7 @@ class TestsRunSetupRobustnessTests(unittest.TestCase):
             pt_info=pt_info,
             test_book="b.epd",
         )
-        self.assertEqual(setup["base_branch"], "master")
+        self.assertEqual(setup["base_branch"], "8chess")
         self.assertIsNone(setup["latest_bench"])
 
     def test_does_not_crash_when_pt_info_missing(self):

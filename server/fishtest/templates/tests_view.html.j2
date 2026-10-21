@@ -1,6 +1,6 @@
 {% extends "base.html.j2" %}
 
-{% block title %}{{ page_title }} | Stockfish Testing{% endblock %}
+{% block title %}{{ page_title }} | 8Chess Testing{% endblock %}
 
 {% block body %}
 {% set run_id = run["_id"] | string %}
@@ -755,7 +755,7 @@
     );
 
     const diffNew = "{{ run["args"]["resolved_new"][:10] }}";
-    const apiOfficialMaster = "https://api.github.com/repos/official-stockfish/Stockfish";
+    const apiOfficialMaster = "https://api.github.com/repos/EightChess-Team/8chess";
     const baseOfficialMaster = {{ gh.official_master_sha | tojson }};
 
     {% if run["args"].get("spsa") %}

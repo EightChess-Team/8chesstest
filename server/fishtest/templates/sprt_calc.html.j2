@@ -1,6 +1,6 @@
 {% extends "base.html.j2" %}
 
-{% block title %}Chess SPRT Calculator | Stockfish Testing{% endblock %}
+{% block title %}Chess SPRT Calculator | 8Chess Testing{% endblock %}
 
 {% block body %}
 {% set sprt_js_url = static_url('fishtest:static/js/sprt.js') %}
@@ -95,17 +95,8 @@
     <li>
       The <b>Draw ratio</b> is mainly a function of the opening book and the
       time control. The draw ratio can be found on the
-      <em>live_elo page</em>
-      of a test with typical URL
-      <a
-        href="https://tests.stockfishchess.org/tests/live_elo/5e15b3e061fe5f83a67dd926"
-        >https://tests.stockfishchess.org/tests/live_elo/5e15b3e061fe5f83a67dd926</a
-      >
-      or the <em>raw statistics page</em> with typical URL
-      <a
-        href="http://tests.stockfishchess.org/tests/stats/5e15b3e061fe5f83a67dd926"
-        >http://tests.stockfishchess.org/tests/stats/5e15b3e061fe5f83a67dd926</a
-      >.
+      <em>live_elo page</em> or the <em>raw statistics page</em> of a test in
+      the <a href="{{ urls.tests }}">8Chess testing queue</a>.
     </li>
     <li>
       The <b>RMS bias</b> is the Root Mean Square of the biases of the openings
@@ -122,11 +113,10 @@
       RMS bias to be much higher than normal.
     </li>
     <li>
-      More information on the mathematics behind this web page can be found on
+      More information on the mathematics behind this web page can be found in
       the
-      <a
-        href="https://github.com/official-stockfish/fishtest/wiki/Fishtest-mathematics"
-        >Fishtest wiki</a
+      <a href="https://github.com/EightChess-Team/8chesstest"
+        >8Chess Testing repository</a
       >.
     </li>
     <li>

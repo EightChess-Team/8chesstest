@@ -21,6 +21,7 @@ import fishtest.github_api as gh
 import fishtest.run_cache
 import fishtest.spsa_handler
 import fishtest.stats.stat_util
+from fishtest import branding
 from fishtest.actiondb import ActionDb
 from fishtest.http.settings import TASK_SEMAPHORE_SIZE
 from fishtest.kvstore import KeyValueStore
@@ -112,9 +113,9 @@ class RunDb:
         self.task_duration = 1800  # 30 minutes
         self.ltc_lower_bound = 40  # Beware: this is used as a filter in an index!
         self.pt_info = {
-            "pt_version": "SF_19",
-            "pt_branch": "edb0d9db6731067ec50ce619ff372b463bc4dd5d",
-            "pt_bench": 2497913,
+            "pt_version": "8Chess 1.0",
+            "pt_branch": "932a124e35e2e866a71c3221b3302495856b3f8d",
+            "pt_bench": 2270651,
         }
 
         if self.port >= 0:
@@ -195,7 +196,9 @@ class RunDb:
         try:
             books = json.loads(
                 gh.download_from_github(
-                    "books.json", repo="books", ignore_rate_limit=True
+                    "books.json",
+                    repo="books",
+                    ignore_rate_limit=True,
                 ).decode()
             )
         except Exception as e:
@@ -1396,8 +1399,8 @@ Request_task: This worker has been blocked!
 {wrapped_message}
 You may possibly find more information at
 {host_url}/actions?text=%22{worker_name}%22.
-If you require help, feel free to contact the #fishtest-dev channel on
-the Stockfish Discord server: https://discord.com/invite/awnh2qZfTT.
+If you require help, feel free to open an issue at
+{branding.TESTING_REPO_URL}/issues.
 After fixing the issues you can unblock the worker at
 {host_url}/workers/{worker_name}.
 **********************************************************************

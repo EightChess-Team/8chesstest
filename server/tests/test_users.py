@@ -1,7 +1,6 @@
 # ruff: noqa: ANN201, ANN206, B904, D100, D101, D102, E501, EM102, INP001, PLC0415, PT009, S105, TRY003
 """Test auth, session, and shared user-facing smoke routes."""
 
-from unittest.mock import patch
 from urllib.parse import urlencode
 
 import test_support
@@ -113,34 +112,18 @@ class TestUsers(UiUserTestCase):
         self.assertEqual(response.status_code, 200)
         self._assert_no_store_headers(response)
         csrf = test_support.extract_csrf_token(response.text)
-        with (
-            patch.dict(
-                "os.environ",
-                {"FISHTEST_CAPTCHA_SECRET": "test-secret"},
-                clear=False,
-            ),
-            patch(
-                "fishtest.views.requests.post",
-                return_value=type(
-                    "_CaptchaResponse",
-                    (),
-                    {"json": staticmethod(lambda: {"success": True})},
-                )(),
-            ),
-        ):
-            response = self.client.post(
-                "/signup",
-                data={
-                    "username": self.signup_username,
-                    "password": self.signup_password,
-                    "password2": self.signup_password,
-                    "email": "signup-test@user.net",
-                    "tests_repo": self.tests_repo,
-                    "g-recaptcha-response": "captcha-ok",
-                    "csrf_token": csrf,
-                },
-                follow_redirects=False,
-            )
+        response = self.client.post(
+            "/signup",
+            data={
+                "username": self.signup_username,
+                "password": self.signup_password,
+                "password2": self.signup_password,
+                "email": "signup-test@user.net",
+                "tests_repo": self.tests_repo,
+                "csrf_token": csrf,
+            },
+            follow_redirects=False,
+        )
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.headers.get("location", "").endswith("/login"))
         self._assert_no_store_headers(response)
@@ -159,34 +142,18 @@ class TestUsers(UiUserTestCase):
         self.assertEqual(response.status_code, 200)
         csrf = test_support.extract_csrf_token(response.text)
 
-        with (
-            patch.dict(
-                "os.environ",
-                {"FISHTEST_CAPTCHA_SECRET": "test-secret"},
-                clear=False,
-            ),
-            patch(
-                "fishtest.views.requests.post",
-                return_value=type(
-                    "_CaptchaResponse",
-                    (),
-                    {"json": staticmethod(lambda: {"success": True})},
-                )(),
-            ),
-        ):
-            response = self.client.post(
-                "/signup",
-                data={
-                    "username": signup_username,
-                    "password": self.signup_password,
-                    "password2": self.signup_password,
-                    "email": "canonical-signup-test@user.net",
-                    "tests_repo": self.tests_repo + "/",
-                    "g-recaptcha-response": "captcha-ok",
-                    "csrf_token": csrf,
-                },
-                follow_redirects=False,
-            )
+        response = self.client.post(
+            "/signup",
+            data={
+                "username": signup_username,
+                "password": self.signup_password,
+                "password2": self.signup_password,
+                "email": "canonical-signup-test@user.net",
+                "tests_repo": self.tests_repo + "/",
+                "csrf_token": csrf,
+            },
+            follow_redirects=False,
+        )
 
         self.assertEqual(response.status_code, 302)
         created_user = self.rundb.userdb.get_user(signup_username)
@@ -361,6 +328,11 @@ class TestUsers(UiUserTestCase):
         self._assert_no_store_headers(response)
         csrf = test_support.extract_csrf_token(response.text)
         self.assertTrue(csrf)
+
+    def test_signup_page_has_no_captcha(self):
+        response = self.client.get("/signup")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("recaptcha", response.text.lower())
 
     def test_signup_requires_csrf(self):
         response = self.client.post(

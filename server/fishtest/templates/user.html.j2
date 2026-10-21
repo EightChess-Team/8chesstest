@@ -1,6 +1,6 @@
 {% extends "base.html.j2" %}
 
-{% block title %}{% if profile %}Profile | Stockfish Testing{% else %}User Management | Stockfish Testing{% endif %}{% endblock %}
+{% block title %}{% if profile %}Profile | 8Chess Testing{% else %}User Management | 8Chess Testing{% endif %}{% endblock %}
 
 {% block body %}
 {% set username = user["username"] %}
@@ -124,7 +124,7 @@
             id="tests_repo"
             name="tests_repo"
             value="{{ tests_repo }}"
-            placeholder="GitHub Stockfish fork URL"
+            placeholder="GitHub 8Chess fork URL"
           >
           <label for="tests_repo" class="d-flex align-items-end">Tests Repository</label>
         </div>

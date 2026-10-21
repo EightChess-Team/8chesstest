@@ -15,9 +15,14 @@
 <html lang="en">
   <head>
     <meta name="color-scheme" content="{{ 'dark light' if theme == 'dark' else 'light dark' }}">
-    <title>{% block title %}Stockfish Testing Framework{% endblock %}</title>
+    <title>{% block title %}8Chess Testing Framework{% endblock %}</title>
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ static_url('fishtest:static/img/8chess.svg') }}"
+    >
 
     {# Read at init, so this precedes the bundle.
        Details: docs/9-references.md (section: "Settle phase"). #}
@@ -131,7 +136,7 @@
           aria-label="Home"
         >
           <div class="brand-logo d-inline me-lg-2"></div>
-          <p class="d-none d-lg-inline h-5 mb-0">Stockfish Testing Framework</p>
+          <p class="d-none d-lg-inline h-5 mb-0">8Chess Testing</p>
         </a>
 
         <button
@@ -278,7 +283,7 @@
         >
           <div class="offcanvas-header border-bottom">
             <h5 class="offcanvas-title" id="leftsidebarOffcanvasLabel">
-              Fishtest
+              8Chess
             </h5>
             <button
               type="button"
@@ -314,7 +319,7 @@
                 <li class="links-group">
                   <strong
                     class="links-heading d-flex w-100 align-items-center fw-semibold"
-                    >Fishtest</strong
+                    >Testing</strong
                   >
                   <ul class="list-unstyled fw-normal small">
                     <li>
@@ -353,30 +358,30 @@
                 <li class="links-group">
                   <strong
                     class="links-heading d-flex w-100 align-items-center fw-semibold"
-                    >Stockfish</strong
+                    >8Chess</strong
                   >
                   <ul class="list-unstyled fw-normal small">
                     <li>
                       <a
-                        href="https://stockfishchess.org/download/"
+                        href="https://github.com/EightChess-Team/8chess/releases"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="links-link rounded release"
-                        >Official Releases</a
+                        >Releases</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/Stockfish/releases?q=prerelease%3Atrue"
+                        href="https://github.com/EightChess-Team/8chess/commits/8chess"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded release"
-                        >Prereleases</a
+                        class="links-link rounded regression"
+                        >Progress</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://stockfishchess.org/get-involved/"
+                        href="https://github.com/EightChess-Team/8chess/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="links-link rounded get-involved"
@@ -385,11 +390,11 @@
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/Stockfish/wiki/Regression-Tests"
+                        href="https://github.com/EightChess-Team/8chess/tree/8chess/docs"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded regression"
-                        >Progress</a
+                        class="links-link rounded docs-link"
+                        >Documentation</a
                       >
                     </li>
                     <li>
@@ -408,38 +413,29 @@
                   <ul class="list-unstyled fw-normal small">
                     <li>
                       <a
-                        href="https://discord.gg/awnh2qZfTT"
+                        href="https://github.com/EightChess-Team/8chesstest#readme"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded discord"
-                        >Discord</a
+                        class="links-link rounded wiki"
+                        >Testing Guide</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/fishtest/wiki"
+                        href="https://github.com/EightChess-Team/8chess/tree/8chess/docs"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded wiki"
-                        >Fishtest Wiki</a
+                        class="links-link rounded docs-link"
+                        >Documentation</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/Stockfish/wiki"
+                        href="https://github.com/EightChess-Team/8chess/tree/8chess/training"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded wiki"
-                        >Stockfish Wiki</a
-                      >
-                    </li>
-                    <li>
-                      <a
-                        href="https://github.com/official-stockfish/nnue-pytorch/wiki"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="links-link rounded wiki"
-                        >NN Trainer Wiki</a
+                        class="links-link rounded training-link"
+                        >NNUE Training</a
                       >
                     </li>
                     <li>
@@ -470,38 +466,38 @@
                   <ul class="list-unstyled fw-normal small">
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/Stockfish"
+                        href="https://github.com/EightChess-Team/8chess"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded stockfish-repo"
-                        >Stockfish</a
+                        class="links-link rounded engine-repo"
+                        >8Chess</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/fishtest"
+                        href="https://github.com/EightChess-Team/8chesstest"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded"
-                        >Fishtest</a
+                        class="links-link rounded testing-repo"
+                        >8Chess Testing</a
                       >
                     </li>
                     <li>
                       <a
-                        href="https://github.com/official-stockfish/nnue-pytorch"
+                        href="https://github.com/EightChess-Team/books"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="links-link rounded"
-                        >NN Trainer</a
-                      >
-                    </li>
-                    <li>
-                      <a
-                        href="https://github.com/official-stockfish/books"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="links-link rounded"
+                        class="links-link rounded books-repo"
                         >Books</a
+                      >
+                    </li>
+                    <li>
+                      <a
+                        href="https://github.com/EightChess-Team/8chess/tree/8chess/training"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="links-link rounded training-link"
+                        >Training</a
                       >
                     </li>
                   </ul>

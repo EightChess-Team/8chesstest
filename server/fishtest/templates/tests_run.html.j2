@@ -1,6 +1,6 @@
 {% extends "base.html.j2" %}
 
-{% block title %}Create New Test | Stockfish Testing{% endblock %}
+{% block title %}Create New Test | 8Chess Testing{% endblock %}
 
 {% block body %}
 {% set elo_model = "normalized" %}
@@ -26,7 +26,7 @@
   <h2>Create New Test</h2>
   <div class="instructions" style="margin-bottom: 35px">
     Please read the
-    <a href="https://github.com/official-stockfish/fishtest/wiki/Creating-my-first-test">Testing Guidelines</a>
+    <a href="https://github.com/EightChess-Team/8chesstest#readme">Testing Guide</a>
     before creating your test.
   </div>
 </header>
@@ -224,7 +224,7 @@
                   id="tests-repo"
                   class="form-control"
                   value="{{ tests_repo_value }}" {{ "readonly" if is_rerun else "" }}
-                  placeholder="https://github.com/username/Stockfish"
+                  placeholder="https://github.com/username/8chess"
                 >
               </div>
 
@@ -502,7 +502,7 @@
                       </div>
                       <div class="modal-body text-break">
                         Checking this option will rewrite the hyperparameters furnished by the tuning
-                        code in Stockfish in such a way that the SPSA tune will finish within 0.5 Elo
+                        code in 8Chess in such a way that the SPSA tune will finish within 0.5 Elo
                         from the optimum (with 95% probability) assuming the function
                         <span class="text-nowrap">'parameters-&gt;Elo'</span> is quadratic and varies
                         2 Elo per parameter over each specified parameter interval. The
@@ -1000,7 +1000,7 @@
         let percentageDiff = baseSig ? (Math.abs(testSig - baseSig) / baseSig) * 100 : (testSig ? Infinity : 0);
 
         if (percentageDiff > sigDiffThreshold) {
-          const message = "The test signature (" + testSig + ") and base signature (" + baseSig + ") differ by more than " + sigDiffThreshold + "%.\n\nThis is highly unusual. Are you sure you want to proceed?\n\nPlease join our Discord server if you have any questions.";
+          const message = "The test signature (" + testSig + ") and base signature (" + baseSig + ") differ by more than " + sigDiffThreshold + "%.\n\nThis is highly unusual. Are you sure you want to proceed?\n\nPlease review the test configuration before proceeding.";
           if (!confirm(message)) {
             e.preventDefault(); // Stop the form submission
             return; // Exit the event handler

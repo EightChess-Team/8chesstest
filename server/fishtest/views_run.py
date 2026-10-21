@@ -14,9 +14,11 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import regex
+import requests
 
 import fishtest.github_api as gh
 import fishtest.stats.stat_util
+from fishtest import branding
 from fishtest.spsa_workflow import build_spsa_state
 from fishtest.util import (
     format_bounds,
@@ -48,8 +50,8 @@ if TYPE_CHECKING:
 
 
 def get_master_info(  # noqa: C901
-    user: str = "official-stockfish",
-    repo: str = "Stockfish",
+    user: str = branding.ENGINE_USER,
+    repo: str = branding.ENGINE_REPO,
     ignore_rate_limit: bool = False,  # noqa: FBT001, FBT002
 ) -> dict[str, Any]:
     """Return bench, message, and date for the latest master commit."""
@@ -178,6 +180,11 @@ def get_nets(commit_sha: str, repo_url: str) -> list[str]:  # noqa: C901
                     net = m.group(0)
                     if net not in nets:
                         nets.append(net)
+    except requests.HTTPError as e:
+        if e.response is not None and e.response.status_code == 404:
+            return []
+        msg = f"Unable to access developer repository {repo_url}: {e!s}"
+        raise ValueError(msg) from e
     except Exception as e:
         msg = f"Unable to access developer repository {repo_url}: {e!s}"
         raise ValueError(msg) from e
@@ -323,12 +330,17 @@ def validate_form(request: Any) -> dict[str, Any]:  # noqa: ANN401, C901, PLR091
     username = request.authenticated_userid
     u = request.userdb.get_user(username)
 
-    # Deal with people that have forked from "mcostalba/Stockfish" instead
-    # of from "official-stockfish/Stockfish".
-    official_repo = "https://github.com/official-stockfish/Stockfish"
+    # Deal with people whose repo is not based on the official 8Chess repo.
+    official_repo = branding.ENGINE_REPO_URL
     master_repo = official_repo
     try:
-        master_repo = gh.get_master_repo(user, repo, ignore_rate_limit=True)
+        if not gh.repo_has_ancestor(
+            user,
+            repo,
+            official_repo,
+            ignore_rate_limit=True,
+        ):
+            master_repo = gh.get_master_repo(user, repo, ignore_rate_limit=True)
     except Exception as e:  # noqa: BLE001
         logger.warning(
             "Unable to determine master repo for %s: %s",
@@ -341,16 +353,16 @@ def validate_form(request: Any) -> dict[str, Any]:  # noqa: ANN401, C901, PLR091
             message = (
                 f"It seems that your repo {data['tests_repo']} has been forked from "
                 f"{master_repo} and not from {official_repo} "
-                "as recommended in the wiki. As such,"
+                "as recommended in the testing guide. As such,"
                 " some functionality may be broken. "
             )
             suffix_soft = (
-                "Please consider replacing your repo with one forked from the official "
-                "Stockfish repo!"
+                "Please consider replacing your repo with one forked from the "
+                "official 8Chess repo!"
             )
             suffix_hard = (
                 "Please replace your repo with one forked from the official "
-                "Stockfish repo!"
+                "8Chess repo!"
             )
             if u["registration_time"] >= datetime(2025, 7, 1, tzinfo=UTC):
                 raise ValueError(message + " " + suffix_hard)
@@ -494,7 +506,7 @@ def validate_form(request: Any) -> dict[str, Any]:  # noqa: ANN401, C901, PLR091
         raise ValueError(msg)
 
     # Check entered bench
-    if data["base_tag"] == "master":
+    if data["base_tag"] == branding.ENGINE_BRANCH:
         master_info = get_master_info(user=user, repo=repo, ignore_rate_limit=True)
         master_bench = (
             master_info.get("bench") if isinstance(master_info, dict) else None
@@ -506,8 +518,8 @@ def validate_form(request: Any) -> dict[str, Any]:  # noqa: ANN401, C901, PLR091
             )
         elif master_bench != data["base_signature"]:
             msg = (
-                "Bench signature of Base master does not match, "
-                'please "git pull upstream master" !'
+                "Bench signature of Base 8Chess does not match, "
+                'please "git pull upstream 8chess" !'
             )
             raise ValueError(msg)
 

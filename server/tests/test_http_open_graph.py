@@ -24,12 +24,12 @@ class OpenGraphTests(unittest.TestCase):
             "https://example.org/tests/view/123?follow=1#tasks",
         )
 
-        self.assertEqual(open_graph["site_name"], "Stockfish Testing Framework")
+        self.assertEqual(open_graph["site_name"], "8Chess Testing Framework")
         self.assertEqual(open_graph["type"], "website")
-        self.assertEqual(open_graph["title"], "Stockfish Testing Framework")
+        self.assertEqual(open_graph["title"], "8Chess Testing Framework")
         self.assertEqual(
             open_graph["description"],
-            "Distributed testing framework for the Stockfish chess engine.",
+            "Distributed testing framework for the 8Chess chess engine.",
         )
         self.assertEqual(open_graph["url"], "https://example.org/tests/view/123")
 
@@ -67,9 +67,9 @@ class OpenGraphTests(unittest.TestCase):
         self.assertEqual(
             open_graph,
             {
-                "site_name": "Stockfish Testing Framework",
+                "site_name": "8Chess Testing Framework",
                 "type": "website",
-                "title": "400 games - master vs master | Stockfish Testing",
+                "title": "400 games - master vs master | 8Chess Testing",
                 "description": "Synthetic ELO +/- line\nSynthetic total",
                 "url": "https://example.org/tests/view/69d12ae19caf4559aa7ada3e",
             },
@@ -135,11 +135,11 @@ class OpenGraphTests(unittest.TestCase):
             run_id_filter="",
         )
 
-        self.assertEqual(open_graph["site_name"], "Stockfish Testing Framework")
+        self.assertEqual(open_graph["site_name"], "8Chess Testing Framework")
         self.assertEqual(open_graph["type"], "website")
         self.assertEqual(
             open_graph["title"],
-            "failed_task on mp-offense-56d4b82/315 | Stockfish Testing",
+            "failed_task on mp-offense-56d4b82/315 | 8Chess Testing",
         )
         self.assertEqual(
             open_graph["url"],
@@ -170,7 +170,7 @@ class OpenGraphTests(unittest.TestCase):
             run_id_filter="69d12ae19caf4559aa7ada3e",
         )
 
-        self.assertEqual(open_graph["title"], "Events Log | Stockfish Testing")
+        self.assertEqual(open_graph["title"], "Events Log | 8Chess Testing")
         self.assertEqual(open_graph["url"], "https://example.org/actions?user=alice")
         self.assertIn(
             "No actions matched the current filters:", open_graph["description"]
